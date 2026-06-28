@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OG Moves</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:     #F5F2EC;
+    --ink:    #0F0E0C;
+    --mid:    #8A8680;
+    --rule:   #D8D4CC;
+    --accent: #C8451A;
+    --card:   #EDEAE3;
+  }
+
+  html { background: var(--bg); color: var(--ink); }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1.5px solid var(--ink);
+    padding: 28px 24px 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .wordmark {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .wordmark span { color: var(--accent); }
+  .tagline {
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--mid);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── GAS BAR ── */
+  #gas-bar {
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mid);
+    letter-spacing: 0.04em;
+  }
+  #gas-bar .gas-val { color: var(--ink); font-weight: 500; }
+  .gas-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* ── SEARCH ── */
+  .search-wrap { padding: 32px 24px 0; }
+  .search-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 10px;
+  }
+  .search-row {
+    display: flex;
+    border: 1.5px solid var(--ink);
+  }
+  #wallet-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 13px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  #wallet-input::placeholder { color: var(--mid); }
+  #search-btn {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: 0 22px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  #search-btn:hover { background: var(--accent); }
+  #search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── STATUS ── */
+  #status {
+    margin: 20px 24px 0;
+    font-size: 12px;
+    color: var(--mid);
+    min-height: 18px;
+  }
+  #status.err { color: var(--accent); }
+
+  /* ── STATS ROW ── */
+  #stats-row {
+    display: none;
+    margin: 28px 24px 0;
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
+    padding: 20px 0;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  #stats-row.show { display: grid; }
+  .stat-cell {
+    padding: 0 20px;
+    border-right: 1px solid var(--rule);
+  }
+  .stat-cell:first-child { padding-left: 0; }
+  .stat-cell:last-child { border-right: none; }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 4px;
+  }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .stat-sub { font-size: 11px; color: var(--mid); margin-top: 3px; }
+
+  /* ── SECTION HEADER ── */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 28px 24px 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .section-count { font-size: 11px; color: var(--mid); }
+
+  /* ── NFT GRID ── */
+  #nft-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    margin-top: 1px;
+  }
+  .nft-card {
+    background: var(--bg);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .nft-card:hover { background: var(--card); }
+  .nft-img-wrap {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .nft-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .nft-img-wrap .no-img {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--rule);
+  }
+  .nft-info { padding: 10px 12px 14px; }
+  .nft-collection {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--mid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .nft-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .nft-floor { font-size: 11px; color: var(--mid); margin-top: 4px; }
+  .nft-floor strong { color: var(--ink); font-weight: 500; }
+
+  /* ── SALES ── */
+  .sale-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--rule);
+    transition: background 0.1s;
+  }
+  .sale-row:hover { background: var(--card); }
+  .sale-thumb {
+    width: 44px; height: 44px;
+    object-fit: cover;
+    background: var(--card);
+    flex-shrink: 0;
+  }
+  .sale-body { flex: 1; min-width: 0; }
+  .sale-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sale-meta { font-size: 11px; color: var(--mid); margin-top: 2px; }
+  .sale-price { text-align: right; flex-shrink: 0; }
+  .sale-eth {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.02em;
+  }
+  .sale-date { font-size: 10px; color: var(--mid); margin-top: 2px; }
+
+  /* ── DETAIL DRAWER ── */
+  #drawer { position: fixed; inset: 0; z-index: 100; display: none; }
+  #drawer.open { display: block; }
+  #drawer-backdrop { position: absolute; inset: 0; background: rgba(15,14,12,0.55); }
+  #drawer-panel {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    border-top: 2px solid var(--ink);
+    max-height: 82vh;
+    overflow-y: auto;
+    padding-bottom: 40px;
+  }
+  #drawer-close {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    z-index: 1;
+  }
+  #drawer-close span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  #drawer-close button {
+    background: none;
+    border: 1px solid var(--rule);
+    padding: 5px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    color: var(--mid);
+  }
+  #drawer-content { padding: 20px 24px 0; }
+  #drawer-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    background: var(--card);
+    margin-bottom: 16px;
+  }
+  #drawer-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  #drawer-collection {
+    font-size: 11px;
+    color: var(--mid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+  #drawer-floor {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    margin-top: 12px;
+    color: var(--ink);
+  }
+  #drawer-rank {
+    font-size: 12px;
+    color: var(--mid);
+    margin-top: 4px;
+  }
+  .trait-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .trait-cell { background: var(--card); padding: 10px 12px; }
+  .trait-type {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+  .trait-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 2px;
+    letter-spacing: -0.01em;
+  }
+  .trait-rarity { font-size: 10px; color: var(--mid); margin-top: 1px; }
+
+  /* ── EMPTY / LOADING ── */
+  .empty-state {
+    padding: 60px 24px;
+    text-align: center;
+    color: var(--mid);
+    font-size: 13px;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--rule);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">OG<span>.</span>MOVES</div>
+  <div class="tagline">NFT Portfolio</div>
+</header>
+
+<div id="gas-bar">
+  <div class="gas-dot"></div>
+  <span>GAS</span>
+  <span id="gas-fast" class="gas-val">—</span>
+  <span style="color:var(--rule)">|</span>
+  <span>SAFE</span>
+  <span id="gas-safe" class="gas-val">—</span>
+  <span style="color:var(--rule)">GWEI</span>
+</div>
+
+<div class="search-wrap">
+  <div class="search-label">Wallet Address or ENS</div>
+  <div class="search-row">
+    <input id="wallet-input" type="text" placeholder="0x… or vitalik.eth" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button id="search-btn" onclick="loadWallet()">Look up</button>
+  </div>
+</div>
+
+<div id="status"></div>
+
+<div id="stats-row">
+  <div class="stat-cell">
+    <div class="stat-label">NFTs held</div>
+    <div class="stat-val" id="stat-nfts">—</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Collections</div>
+    <div class="stat-val" id="stat-cols">—</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Est. floor</div>
+    <div class="stat-val" id="stat-vol">—</div>
+    <div class="stat-sub">ETH total</div>
+  </div>
+</div>
+
+<div id="nfts-section" style="display:none">
+  <div class="section-head">
+    <div class="section-title">Holdings</div>
+    <div class="section-count" id="nft-count"></div>
+  </div>
+  <div id="nft-grid"></div>
+</div>
+
+<div id="sales-section" style="display:none">
+  <div class="section-head">
+    <div class="section-title">Recent Sales</div>
+    <div class="section-count" id="sale-count"></div>
+  </div>
+  <div id="sales-list"></div>
+</div>
+
+<!-- Detail Drawer -->
+<div id="drawer">
+  <div id="drawer-backdrop" onclick="closeDrawer()"></div>
+  <div id="drawer-panel">
+    <div id="drawer-close">
+      <span>Detail</span>
+      <button onclick="closeDrawer()">Close</button>
+    </div>
+    <div id="drawer-content"></div>
+  </div>
+</div>
+
+<script>
+const BASE = 'https://og-moves-proxy.kobided223.workers.dev';
+
+// ── Telegram Mini App init ──
+if (window.Telegram?.WebApp) {
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+  // Use Telegram theme colors if available
+  if (tg.colorScheme === 'dark') {
+    document.documentElement.style.setProperty('--bg', '#1a1a1a');
+    document.documentElement.style.setProperty('--ink', '#f0ede8');
+    document.documentElement.style.setProperty('--card', '#2a2a2a');
+    document.documentElement.style.setProperty('--rule', '#333');
+    document.documentElement.style.setProperty('--mid', '#888');
+  }
+}
+
+// ── Gas ──
+async function loadGas() {
+  try {
+    const r = await fetch(`${BASE}/etherscan/gas`);
+    const d = await r.json();
+    if (d.result) {
+      document.getElementById('gas-fast').textContent = d.result.FastGasPrice;
+      document.getElementById('gas-safe').textContent = d.result.SafeGasPrice;
+    }
+  } catch(e) {}
+}
+loadGas();
+setInterval(loadGas, 30000);
+
+// ── Helpers ──
+function setStatus(msg, isErr = false) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = isErr ? 'err' : '';
+}
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  const secs = Math.floor((Date.now() / 1000) - ts);
+  if (secs < 60) return 'just now';
+  if (secs < 3600) return Math.floor(secs/60) + 'm ago';
+  if (secs < 86400) return Math.floor(secs/3600) + 'h ago';
+  return Math.floor(secs/86400) + 'd ago';
+}
+
+// ── Main load ──
+async function loadWallet() {
+  const addr = document.getElementById('wallet-input').value.trim();
+  if (!addr) { setStatus('Enter a wallet address.', true); return; }
+
+  document.getElementById('search-btn').disabled = true;
+  document.getElementById('stats-row').classList.remove('show');
+  document.getElementById('nfts-section').style.display = 'none';
+  document.getElementById('sales-section').style.display = 'none';
+  document.getElementById('nft-grid').innerHTML = '<div class="empty-state"><div class="spinner"></div>Loading NFTs…</div>';
+  document.getElementById('nfts-section').style.display = 'block';
+  setStatus('');
+
+  try {
+    // Fetch NFTs from Alchemy + sales from OpenSea in parallel
+    const [nftRes, eventRes] = await Promise.allSettled([
+      fetch(`${BASE}/alchemy/nfts?address=${encodeURIComponent(addr)}`),
+      fetch(`${BASE}/opensea/events?address=${encodeURIComponent(addr)}`)
+    ]);
+
+    // ── NFTs ──
+    if (nftRes.status === 'rejected') throw new Error('NFT fetch failed');
+    const nftData = await nftRes.value.json();
+    const nfts = nftData.ownedNfts || [];
+
+    // Count unique collections
+    const contracts = [...new Set(nfts.map(n => n.contract?.address).filter(Boolean))];
+    document.getElementById('stat-nfts').textContent = nftData.totalCount ?? nfts.length;
+    document.getElementById('stat-cols').textContent = contracts.length;
+    document.getElementById('stats-row').classList.add('show');
+    document.getElementById('nft-count').textContent = nfts.length + ' shown';
+
+    if (nfts.length === 0) {
+      document.getElementById('nft-grid').innerHTML = '<div class="empty-state">No NFTs found for this wallet.</div>';
+    } else {
+      document.getElementById('nft-grid').innerHTML = nfts.map(n => {
+        const img = n.image?.cachedUrl || n.image?.originalUrl || n.image?.thumbnailUrl || '';
+        const name = n.name || n.raw?.metadata?.name || `#${n.tokenId}`;
+        const col = n.contract?.name || n.contract?.address?.slice(0,8) || '';
+        const contract = n.contract?.address || '';
+        const tokenId = n.tokenId || '';
+        const safeImg = img.replace(/'/g, "\\'");
+        const safeName = name.replace(/'/g, "\\'");
+        const safeCol = col.replace(/'/g, "\\'");
+        return `<div class="nft-card" onclick="openDetail('${contract}','${tokenId}','${encodeURIComponent(safeImg)}','${encodeURIComponent(safeName)}','${encodeURIComponent(safeCol)}')">
+          <div class="nft-img-wrap">${img ? `<img src="${img}" loading="lazy" onerror="this.style.display='none'">` : '<div class="no-img">◻</div>'}</div>
+          <div class="nft-info">
+            <div class="nft-collection">${col}</div>
+            <div class="nft-name">${name}</div>
+            <div class="nft-floor" id="floor-${contract}">—</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Load floor prices per unique contract
+      const seen = new Set();
+      nfts.forEach(n => {
+        const c = n.contract?.address;
+        if (c && !seen.has(c)) { seen.add(c); loadFloor(c); }
+      });
+    }
+
+    // ── Sales ──
+    if (eventRes.status === 'fulfilled') {
+      try {
+        const eventData = await eventRes.value.json();
+        const events = (eventData.asset_events || []).filter(e => e.event_type === 'sale');
+        if (events.length > 0) {
+          document.getElementById('sales-section').style.display = 'block';
+          document.getElementById('sale-count').textContent = events.length + ' sales';
+          document.getElementById('sales-list').innerHTML = events.slice(0, 20).map(e => {
+            const nft = e.nft || {};
+            const img = nft.image_url || '';
+            const name = nft.name || `#${nft.identifier || '?'}`;
+            const col = nft.collection || '';
+            const eth = e.payment?.quantity
+              ? (parseFloat(e.payment.quantity) / 1e18).toFixed(3)
+              : '—';
+            const when = timeAgo(e.event_timestamp);
+            return `<div class="sale-row">
+              <img class="sale-thumb" src="${img}" onerror="this.style.visibility='hidden'" loading="lazy">
+              <div class="sale-body">
+                <div class="sale-name">${name}</div>
+                <div class="sale-meta">${col}</div>
+              </div>
+              <div class="sale-price">
+                <div class="sale-eth">${eth} Ξ</div>
+                <div class="sale-date">${when}</div>
+              </div>
+            </div>`;
+          }).join('');
+        }
+      } catch(e) {}
+    }
+
+    setStatus('');
+  } catch(err) {
+    setStatus('Could not load wallet. Check the address and try again.', true);
+    document.getElementById('nft-grid').innerHTML = '';
+  }
+
+  document.getElementById('search-btn').disabled = false;
+}
+
+// ── Floor price loader ──
+const floorCache = {};
+async function loadFloor(contract) {
+  if (floorCache[contract]) return applyFloor(contract, floorCache[contract]);
+  try {
+    const r = await fetch(`${BASE}/alchemy/floor?contract=${contract}`);
+    const d = await r.json();
+    // Alchemy returns openSea.floorPrice and looksRare.floorPrice
+    const floor = d.openSea?.floorPrice || d.looksRare?.floorPrice || null;
+    if (floor) {
+      floorCache[contract] = floor;
+      applyFloor(contract, floor);
+    }
+  } catch(e) {}
+}
+
+function applyFloor(contract, floor) {
+  document.querySelectorAll(`#floor-${CSS.escape(contract)}`).forEach(el => {
+    el.innerHTML = `Floor <strong>${parseFloat(floor).toFixed(3)} Ξ</strong>`;
+  });
+}
+
+// ── Detail drawer ──
+async function openDetail(contract, id, imgEnc, nameEnc, colEnc) {
+  const img = decodeURIComponent(imgEnc);
+  const name = decodeURIComponent(nameEnc);
+  const col = decodeURIComponent(colEnc);
+
+  document.getElementById('drawer-content').innerHTML = `
+    ${img ? `<img id="drawer-img" src="${img}">` : ''}
+    <div id="drawer-name">${name}</div>
+    <div id="drawer-collection">${col}</div>
+    <div id="drawer-floor">—</div>
+    <div id="drawer-rank"></div>
+    <div class="trait-grid"><div class="empty-state" style="grid-column:1/-1"><div class="spinner"></div></div></div>
+  `;
+  document.getElementById('drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Load floor + metadata in parallel
+  const [metaRes, floorRes] = await Promise.allSettled([
+    fetch(`${BASE}/alchemy/nft?contract=${contract}&id=${id}`),
+    fetch(`${BASE}/alchemy/floor?contract=${contract}`)
+  ]);
+
+  // Floor
+  if (floorRes.status === 'fulfilled') {
+    try {
+      const fd = await floorRes.value.json();
+      const floor = fd.openSea?.floorPrice || fd.looksRare?.floorPrice;
+      if (floor) {
+        const el = document.getElementById('drawer-floor');
+        if (el) el.textContent = `Floor ${parseFloat(floor).toFixed(3)} Ξ`;
+      }
+    } catch(e) {}
+  }
+
+  // Traits + rarity
+  if (metaRes.status === 'fulfilled') {
+    try {
+      const md = await metaRes.value.json();
+      const traits = md.raw?.metadata?.attributes || md.raw?.metadata?.traits || [];
+      const rank = md.contract?.openSeaMetadata?.rarityRank || null;
+
+      if (rank) {
+        const el = document.getElementById('drawer-rank');
+        if (el) el.textContent = `Rarity rank #${rank}`;
+      }
+
+      let traitHTML = traits.slice(0, 16).map(t => {
+        const rarityPct = t.prevalence ? `${(t.prevalence * 100).toFixed(1)}% have this` : '';
+        return `<div class="trait-cell">
+          <div class="trait-type">${t.trait_type || t.key || ''}</div>
+          <div class="trait-val">${t.value ?? '—'}</div>
+          ${rarityPct ? `<div class="trait-rarity">${rarityPct}</div>` : ''}
+        </div>`;
+      }).join('');
+
+      const tg = document.querySelector('.trait-grid');
+      if (tg) tg.innerHTML = traitHTML || '<div class="empty-state" style="grid-column:1/-1">No traits found.</div>';
+    } catch(e) {}
+  }
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.body.style.overflow = '';
+  if (window.Telegram?.WebApp) window.Telegram.WebApp.BackButton.hide();
+}
+
+// Enter key
+document.getElementById('wallet-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadWallet();
+});
+</script>
+</body>
+</html>
